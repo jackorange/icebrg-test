@@ -1,0 +1,16 @@
+.container {
+  display: block;
+}
+
+.logOut {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+}
+.autoCompleteContainer {
+  width: 200px;
+}
+.autocompleteOption {
+  display: 'flex';
+  justify-content: 'space-between';
+}
