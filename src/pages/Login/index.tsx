@@ -53,10 +53,8 @@ const Login = () => {
           placeholder="Password"
         />
       </Form.Item>
-      <Form.Item></Form.Item>
-
       <Form.Item>
-        <Button type="primary" htmlType="submit" className="login-form-button">
+        <Button type="primary" htmlType="submit" className={styles.loginButton}>
           Log in
         </Button>
       </Form.Item>
