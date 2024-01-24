@@ -1,8 +1,9 @@
 import { ReactNode, createContext, useContext, useMemo } from 'react';
-import { API_LOGIN, API_LOGIN_REFRESH, API_SEARCH } from '../constants';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { API_LOGIN, API_LOGIN_REFRESH, API_SEARCH, SEARCH_ROUTE } from '../constants';
 import { ApiError, RefreshTokenResult, SearchResult, User } from '../types';
-import { httpSettings } from '../utils';
+import { getHttpSettings } from '../utils';
 
 interface ApiContextType {
   login: (email: string, password: string) => Promise<void>;
@@ -18,17 +19,21 @@ export const ApiProvider = ({ children }: { children: ReactNode }): JSX.Element 
   const login = async (email: string, password: string) => {
     const body = JSON.stringify({ email, password });
     await fetch(API_LOGIN, {
-      ...httpSettings,
+      ...getHttpSettings(),
       body,
     })
       .then((response) => response.json())
       .then((data: User) => {
-        localStorage.setItem('access_token', data.access_token);
-        localStorage.setItem('refresh_token', data.refresh_token);
-        data.access_token && navigate('/');
+        if (data.access_token) {
+          localStorage.setItem('access_token', data.access_token);
+          localStorage.setItem('refresh_token', data.refresh_token);
+          data.access_token && navigate(SEARCH_ROUTE);
+        } else {
+          toast.error('Invalid password or email');
+        }
       })
       .catch((err) => {
-        console.error(err);
+        toast.error('Something went wrong');
       });
   };
 
@@ -36,7 +41,7 @@ export const ApiProvider = ({ children }: { children: ReactNode }): JSX.Element 
     const refreshToken = localStorage.getItem('refresh_token');
     const body = JSON.stringify({ refresh_token: refreshToken });
     await fetch(API_LOGIN_REFRESH, {
-      ...httpSettings,
+      ...getHttpSettings(),
       body,
     })
       .then((response) => response.json())
@@ -45,14 +50,14 @@ export const ApiProvider = ({ children }: { children: ReactNode }): JSX.Element 
         localStorage.setItem('refresh_token', data.refresh_token);
       })
       .catch((err) => {
-        console.error(err);
+        toast.error('Something went wrong');
       });
   };
 
   const search = async (query: string) => {
     const body = JSON.stringify({ query });
     return await fetch(API_SEARCH, {
-      ...httpSettings,
+      ...getHttpSettings(),
       body,
     })
       .then((response) => response.json())
@@ -60,6 +65,7 @@ export const ApiProvider = ({ children }: { children: ReactNode }): JSX.Element 
         return data;
       })
       .catch((err) => {
+        toast.error('Something went wrong');
         return err;
       });
   };
