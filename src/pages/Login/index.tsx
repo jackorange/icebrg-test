@@ -1,19 +1,25 @@
 import { Form, Input, Button } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import styles from './index.module.css';
+import { useForm } from 'antd/es/form/Form';
+import { useApi } from '../../hooks/useApi';
 
-interface ILoginSubmit {
-  username: string;
+interface ILoginForm {
+  email: string;
   password: string;
 }
 
 const Login = () => {
-  const onFinish = (values: ILoginSubmit) => {
-    console.log('Received values of form: ', values);
+  const [form] = useForm<ILoginForm>();
+  const { login } = useApi();
+
+  const onFinish = async (values: ILoginForm) => {
+    await login(values.email, values.password);
   };
 
   return (
     <Form
+      form={form}
       name="loginForm"
       className={styles.loginForm}
       initialValues={{
@@ -22,11 +28,11 @@ const Login = () => {
       onFinish={onFinish}
     >
       <Form.Item
-        name="username"
+        name="email"
         rules={[
           {
             required: true,
-            message: 'Please input your username!',
+            message: 'Please input your email!',
           },
         ]}
       >
